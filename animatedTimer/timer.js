@@ -3,7 +3,9 @@ export class Timer {
         this.durationInput = durationInput;
         this.startButton = startButton;
         this.pauseButton = pauseButton;
+
         if (callbacks) {
+            this.callbacks = callbacks;
             this.onStart = callbacks.onStart;
             this.onTick = callbacks.onTick;
             this.onComplete = callbacks.onComplete;
