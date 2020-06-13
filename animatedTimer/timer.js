@@ -15,7 +15,7 @@ export class Timer {
 
     start = () => {
         if (this.onStart) {
-            this.onStart();
+            this.onStart(this.timeRemaining);
         }
         this.tick();
         this.intervalID = setInterval(this.tick, 1000);
@@ -34,7 +34,7 @@ export class Timer {
         } else {
             this.timeRemaining = this.timeRemaining - 1;
             if (this.onTick) {
-                this.onTick();
+                this.onTick(this.timeRemaining);
             }
         }
     };
