@@ -7,12 +7,20 @@ const fetchData = async (searchTerm) => {
     });
     console.log(response);
 };
+
+const debounce = (func, delay = 1000) => {
+    let timeoutID = null;
+    return (...args) => {
+        if (timeoutID) {
+            clearTimeout(timeoutID);
+        }
+        timeoutID = setTimeout(() => func(...args), delay);
+    };
+};
+
+const onInput = debounce(({ target }) => {
+    fetchData(target.value);
+});
 const input = document.querySelector("input");
 
-let timeoutID = null;
-input.addEventListener("input", ({ target }) => {
-    if (timeoutID) {
-        clearTimeout(timeoutID);
-    }
-    timeoutID = setTimeout(() => fetchData(target.value), 500);
-});
+input.addEventListener("input", onInput);
