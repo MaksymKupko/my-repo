@@ -31,7 +31,7 @@ createAutoComplete({
     root: document.querySelector("#left-automplete"),
     onOptionSelect(movie) {
         document.querySelector(".tutorial").classList.add("is-hidden");
-        onMovieSelect(movie, document.querySelector("#left-summary"));
+        onMovieSelect(movie, document.querySelector("#left-summary"), "left");
     },
 });
 createAutoComplete({
@@ -39,11 +39,14 @@ createAutoComplete({
     root: document.querySelector("#right-automplete"),
     onOptionSelect(movie) {
         document.querySelector(".tutorial").classList.add("is-hidden");
-        onMovieSelect(movie, document.querySelector("#right-summary"));
+        onMovieSelect(movie, document.querySelector("#right-summary"), "right");
     },
 });
 
-const onMovieSelect = async ({ imdbID }, summaryElem) => {
+let leftMovie = null;
+let rightMovie = null;
+
+const onMovieSelect = async ({ imdbID }, summaryElem, side) => {
     const response = await axios.get("http://www.omdbapi.com", {
         params: {
             apikey: "a19cdc15",
@@ -51,10 +54,36 @@ const onMovieSelect = async ({ imdbID }, summaryElem) => {
         },
     });
     summaryElem.innerHTML = movieTemplate(response.data);
+
+    if (side === "left") {
+        leftMovie = response.data;
+    } else {
+        rightMovie = response.data;
+    }
+
+    if (leftMovie && rightMovie) {
+        runComparison();
+    }
 };
+
+const runComparison = () => {};
 
 const movieTemplate = (movieDetails) => {
     const { Poster, Title, Genre, Plot, Awards, BoxOffice, Metascore, imdbRating, imdbVotes } = movieDetails;
+
+    const dollars = parseInt(BoxOffice.replace(/\$/g, "").replace(/,/g, ""));
+    const metascore = parseInt(Metascore);
+    const imdbRatingParsed = parseFloat(imdbRating);
+    const imdbVotesParsed = parseInt(imdbVotes.replace(/,/g, ""));
+    const awards = Awards.split(" ").reduce((prev, word) => {
+        const value = parseInt(word);
+
+        if (isNaN(value)) {
+            return prev
+        } else {
+            return prev + value
+        }
+    }, 0);
 
     return `
         <article class="media">
@@ -71,23 +100,24 @@ const movieTemplate = (movieDetails) => {
                 </div>
             </div>
         </article>
-        <article class="notification is-primary">
+
+        <article data-value=${awards} class="notification is-primary">
             <p class="title">${Awards}</p>
             <p class="subtitle">Awards</p>
         </article>
-        <article class="notification is-primary">
+        <article data-value=${dollars} class="notification is-primary">
             <p class="title">${BoxOffice}</p>
             <p class="subtitle">Box Office</p>
         </article>
-        <article class="notification is-primary">
+        <article data-value=${metascore} class="notification is-primary">
             <p class="title">${Metascore}</p>
             <p class="subtitle">Metascore</p>
         </article>
-        <article class="notification is-primary">
+        <article data-value=${imdbRatingParsed} class="notification is-primary">
             <p class="title">${imdbRating}</p>
             <p class="subtitle">IMDB Rating</p>
         </article>
-        <article class="notification is-primary">
+        <article data-value=${imdbVotesParsed} class="notification is-primary">
             <p class="title">${imdbVotes}</p>
             <p class="subtitle">IMDB Votes</p>
         </article>
