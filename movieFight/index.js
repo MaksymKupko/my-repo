@@ -1,85 +1,46 @@
-const fetchData = async (searchTerm) => {
+const onMovieSelect = async ({imdbID}) => {
     const response = await axios.get("http://www.omdbapi.com", {
         params: {
             apikey: "a19cdc15",
-            s: searchTerm,
-        },
-    });
-
-    if (response.data.Error) {
-        return [];
-    }
-
-    return response.data.Search;
-};
-
-const root = document.querySelector(".autocomplete");
-root.innerHTML = `
-    <label><b>Search For A Movie</b></label>
-    <input class="input">
-    <div class="dropdown">
-        <div class="dropdown-menu">
-            <div class="dropdown-content results"></div>
-        </div>
-    </div>
-`;
-
-const input = document.querySelector("input");
-const dropdown = document.querySelector(".dropdown");
-const resultsWrapper = document.querySelector(".results");
-
-const onInput = async ({ target }) => {
-    const movies = await fetchData(target.value);
-
-    if (!movies.length) {
-        dropdown.classList.remove("is-active");
-        return;
-    }
-
-    resultsWrapper.innerHTML = "";
-    dropdown.classList.add("is-active");
-
-    const moviesArr = movies.map((movie) => {
-        const { Title, Poster, imdbID } = movie;
-        const option = document.createElement("a");
-        option.classList.add("dropdown-item");
-        option.addEventListener("click", () => {
-            dropdown.classList.remove("is-active");
-            input.value = Title;
-            onMovieSelect(imdbID);
-        });
-
-        const imgSRC = Poster === "N/A" ? "" : Poster;
-        option.innerHTML = `
-            <img src="${imgSRC}">
-            ${Title}
-        `;
-
-        return option;
-    });
-
-    resultsWrapper.append(...moviesArr);
-};
-
-input.addEventListener("input", debounce(onInput, 500));
-
-document.addEventListener("click", ({ target }) => {
-    if (!root.contains(target)) {
-        dropdown.classList.remove("is-active");
-    }
-});
-
-const onMovieSelect = async (movieID) => {
-    const response = await axios.get("http://www.omdbapi.com", {
-        params: {
-            apikey: "a19cdc15",
-            i: movieID,
+            i: imdbID,
         },
     });
     document.querySelector("#summary").innerHTML = movieTemplate(response.data);
-    console.log(response.data);
-    
 };
+
+createAutoComplete({
+    root: document.querySelector(".autocomplete"),
+    renderOption(movie) {
+        const { Title, Poster, Year } = movie;
+        const imgSRC = Poster === "N/A" ? "" : Poster;
+        return `
+        <img src="${imgSRC}">
+        ${Title} (${Year})
+        `;
+    },
+    onOptionSelect(movie) {
+        onMovieSelect(movie)
+    },
+    inputValue(movie) {
+        return movie.Title
+    },
+    async fetchData(searchTerm){
+        const response = await axios.get("http://www.omdbapi.com", {
+            params: {
+                apikey: "a19cdc15",
+                s: searchTerm,
+            },
+        });
+    
+        if (response.data.Error) {
+            return [];
+        }
+    
+        return response.data.Search;
+    },
+    
+})
+
 
 const movieTemplate = (movieDetails) => {
     const { Poster, Title, Genre, Plot, Awards, BoxOffice,Metascore, imdbRating, imdbVotes } = movieDetails;
