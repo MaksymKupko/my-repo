@@ -15,13 +15,13 @@ const fetchData = async (searchTerm) => {
 
 const root = document.querySelector(".autocomplete");
 root.innerHTML = `
-<label><b>Search For A Movie</b></label>
-<input class="input">
-<div class="dropdown">
-<div class="dropdown-menu">
-<div class="dropdown-content results"></div>
-</div>
-</div>
+    <label><b>Search For A Movie</b></label>
+    <input class="input">
+    <div class="dropdown">
+    <div class="dropdown-menu">
+    <div class="dropdown-content results"></div>
+    </div>
+    </div>
 `;
 
 const input = document.querySelector("input");
@@ -30,21 +30,40 @@ const resultsWrapper = document.querySelector(".results");
 
 const onInput = async ({ target }) => {
     const movies = await fetchData(target.value);
-    
+
+    if (!movies.length) {
+        dropdown.classList.remove("is-active");
+        return;
+    }
+
     resultsWrapper.innerHTML = "";
     dropdown.classList.add("is-active");
-    const html = movies
-        .map(({ Title, Poster }) => {
-            const imgSRC = Poster === "N/A" ? "" : Poster;
-            return `
-                <a class="dropdown-item">
+
+    const moviesArr = movies.map((movie) => {
+        const { Title, Poster } = movie;
+        const option = document.createElement("a");
+        option.classList.add("dropdown-item");
+        option.addEventListener("click", () => {
+            dropdown.classList.remove("is-active");
+            input.value = Title;
+        });
+
+        const imgSRC = Poster === "N/A" ? "" : Poster;
+        option.innerHTML = `
                     <img src="${imgSRC}">
                     ${Title}
-                </a>
         `;
-        })
-        .join("");
-    resultsWrapper.insertAdjacentHTML("beforeend", html);
+
+        return option;
+    });
+
+    resultsWrapper.append(...moviesArr);
 };
 
 input.addEventListener("input", debounce(onInput, 500));
+
+document.addEventListener("click", ({ target }) => {
+    if (!root.contains(target)) {
+        dropdown.classList.remove("is-active");
+    }
+});
