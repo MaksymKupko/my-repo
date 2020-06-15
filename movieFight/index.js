@@ -1,15 +1,4 @@
-const onMovieSelect = async ({imdbID}) => {
-    const response = await axios.get("http://www.omdbapi.com", {
-        params: {
-            apikey: "a19cdc15",
-            i: imdbID,
-        },
-    });
-    document.querySelector("#summary").innerHTML = movieTemplate(response.data);
-};
-
-createAutoComplete({
-    root: document.querySelector(".autocomplete"),
+const autompleteConfig = {
     renderOption(movie) {
         const { Title, Poster, Year } = movie;
         const imgSRC = Poster === "N/A" ? "" : Poster;
@@ -18,32 +7,54 @@ createAutoComplete({
         ${Title} (${Year})
         `;
     },
-    onOptionSelect(movie) {
-        onMovieSelect(movie)
-    },
     inputValue(movie) {
-        return movie.Title
+        return movie.Title;
     },
-    async fetchData(searchTerm){
+    async fetchData(searchTerm) {
         const response = await axios.get("http://www.omdbapi.com", {
             params: {
                 apikey: "a19cdc15",
                 s: searchTerm,
             },
         });
-    
+
         if (response.data.Error) {
             return [];
         }
-    
+
         return response.data.Search;
     },
-    
-})
+};
 
+createAutoComplete({
+    ...autompleteConfig,
+    root: document.querySelector("#left-automplete"),
+    onOptionSelect(movie) {
+        document.querySelector(".tutorial").classList.add("is-hidden");
+        onMovieSelect(movie, document.querySelector("#left-summary"));
+    },
+});
+createAutoComplete({
+    ...autompleteConfig,
+    root: document.querySelector("#right-automplete"),
+    onOptionSelect(movie) {
+        document.querySelector(".tutorial").classList.add("is-hidden");
+        onMovieSelect(movie, document.querySelector("#right-summary"));
+    },
+});
+
+const onMovieSelect = async ({ imdbID }, summaryElem) => {
+    const response = await axios.get("http://www.omdbapi.com", {
+        params: {
+            apikey: "a19cdc15",
+            i: imdbID,
+        },
+    });
+    summaryElem.innerHTML = movieTemplate(response.data);
+};
 
 const movieTemplate = (movieDetails) => {
-    const { Poster, Title, Genre, Plot, Awards, BoxOffice,Metascore, imdbRating, imdbVotes } = movieDetails;
+    const { Poster, Title, Genre, Plot, Awards, BoxOffice, Metascore, imdbRating, imdbVotes } = movieDetails;
 
     return `
         <article class="media">
