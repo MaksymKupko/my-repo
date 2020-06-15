@@ -30,13 +30,15 @@ const resultsWrapper = document.querySelector(".results");
 
 const onInput = async ({ target }) => {
     const movies = await fetchData(target.value);
-
+    
+    resultsWrapper.innerHTML = "";
     dropdown.classList.add("is-active");
     const html = movies
         .map(({ Title, Poster }) => {
+            const imgSRC = Poster === "N/A" ? "" : Poster;
             return `
                 <a class="dropdown-item">
-                    <img src="${Poster}">
+                    <img src="${imgSRC}">
                     ${Title}
                 </a>
         `;
