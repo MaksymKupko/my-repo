@@ -66,7 +66,28 @@ const onMovieSelect = async ({ imdbID }, summaryElem, side) => {
     }
 };
 
-const runComparison = () => {};
+const runComparison = () => {
+    const leftSideStats = document.querySelectorAll("#left-summary .notification");
+    const rightSideStats = document.querySelectorAll("#right-summary .notification");
+
+    leftSideStats.forEach((leftStat, index) => {
+        const rightStat = rightSideStats[index];
+
+        const leftStatValue = leftStat.dataset.value;
+        const rightStatValue = rightStat.dataset.value;
+        console.log(leftStatValue, rightStatValue);
+        if (rightStatValue === leftStatValue) {
+            return;
+        }
+        if (+rightStatValue > +leftStatValue) {
+            leftStat.classList.remove("is-primary");
+            leftStat.classList.add("is-warning");
+        } else {
+            rightStat.classList.remove("is-primary");
+            rightStat.classList.add("is-warning");
+        }
+    });
+};
 
 const movieTemplate = (movieDetails) => {
     const { Poster, Title, Genre, Plot, Awards, BoxOffice, Metascore, imdbRating, imdbVotes } = movieDetails;
@@ -79,9 +100,9 @@ const movieTemplate = (movieDetails) => {
         const value = parseInt(word);
 
         if (isNaN(value)) {
-            return prev
+            return prev;
         } else {
-            return prev + value
+            return prev + value;
         }
     }, 0);
 
