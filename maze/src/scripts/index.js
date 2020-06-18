@@ -243,7 +243,7 @@ function starNewGame() {
 
         timeoutID = setTimeout(() => {
             Body.setVelocity(ball, { x: 0, y: 0 });
-        }, 200);
+        }, 100);
     };
 
     // Win condition
