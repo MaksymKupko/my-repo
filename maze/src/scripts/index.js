@@ -8,13 +8,13 @@ function starNewGame() {
     winner.classList.add("hidden");
     const { Engine, Render, Runner, World, Bodies, Body, Events } = Matter;
 
-    const cellsHorizontal = 36;
-    const cellsVertical = 24;
+    const cellsHorizontal = 24;
+    const cellsVertical = 18;
     const width = window.innerWidth;
     const height = window.innerHeight;
 
     const unitLengthX = width / cellsHorizontal;
-    const unitLengthY = width / cellsVertical;
+    const unitLengthY = height / cellsVertical;
 
     const engine = Engine.create();
     engine.world.gravity.y = 0;
@@ -165,12 +165,12 @@ function starNewGame() {
     });
 
     //Goal
-    const goalSize = Math.min(unitLengthX, unitLengthY) *0.7;
+    // const goalSize = Math.min(unitLengthX, unitLengthY) * 0.7;
     const goal = Bodies.rectangle(
         width - unitLengthX / 2,
         height - unitLengthY / 2,
-        goalSize,
-        goalSize,
+        unitLengthX * 0.7,
+        unitLengthY * 0.7,
         {
             isStatic: true,
             label: "goal",
@@ -191,25 +191,62 @@ function starNewGame() {
     });
     World.add(world, ball);
 
-    document.addEventListener("keydown", ({ keyCode }) => {
+    let timeoutID = null;
+
+    document.onkeydown = ({ keyCode }) => {
         const { x, y } = ball.velocity;
 
+        if (timeoutID) {
+            clearTimeout(timeoutID);
+        }
+
         if (keyCode === 87) {
-            Body.setVelocity(ball, { x, y: y - 5 });
+            // if (y > 0) {
+            //     Body.setVelocity(ball, { x, y: 0 });
+            // }
+            if (y >= -10) {
+                Body.setVelocity(ball, { x, y: y - 3 });
+            }
         }
+
         if (keyCode === 68) {
-            Body.setVelocity(ball, { x: x + 5, y });
+            // if (x < 0) {
+            //     Body.setVelocity(ball, { x: 0, y });
+            // }
+            if (x <= 10) {
+                Body.setVelocity(ball, { x: x + 3, y });
+            }
         }
+
         if (keyCode === 83) {
-            Body.setVelocity(ball, { x, y: y + 5 });
+            // if (y < 0) {
+            //     Body.setVelocity(ball, { x, y: 0 });
+            // }
+            if (y <= 10) {
+                Body.setVelocity(ball, { x, y: y + 3 });
+            }
         }
+
         if (keyCode === 65) {
-            Body.setVelocity(ball, { x: x - 5, y });
+            // if (x > 0) {
+            //     Body.setVelocity(ball, { x: 0, y });
+            // }
+            if (x >= -10) {
+                Body.setVelocity(ball, { x: x - 3, y });
+            }
         }
-    });
+    };
+
+    document.onkeyup = ({ keycode }) => {
+        const { x, y } = ball.velocity;
+        const keyCodes = [87, 68, 83, 65];
+
+        timeoutID = setTimeout(() => {
+            Body.setVelocity(ball, { x: 0, y: 0 });
+        }, 200);
+    };
 
     // Win condition
-
     Events.on(engine, "collisionStart", (event) => {
         event.pairs.forEach((collision) => {
             const labels = ["ball", "goal"];
