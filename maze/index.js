@@ -1,4 +1,4 @@
-const { Engine, Render, Runner, World, Bodies } = Matter;
+const { Engine, Render, Runner, World, Bodies, Body } = Matter;
 
 const cells = 3;
 const width = 600;
@@ -27,7 +27,7 @@ const walls = [
     Bodies.rectangle(0, height / 2, 2, height, { isStatic: true }),
     Bodies.rectangle(width, height / 2, 2, height, { isStatic: true }),
 ];
-// World.add(world, walls);
+World.add(world, walls);
 
 // Maze generation
 
@@ -145,11 +145,31 @@ verticals.forEach((row, rowIndex) => {
     });
 });
 
-const goal = Bodies.rectangle(width - unitLength / 2, 
-    height - unitLength / 2,
-    unitLength*0.7,
-    unitLength*0.7,{
-        isStatic:true
-    }
-    );
+//Goal
+
+const goal = Bodies.rectangle(width - unitLength / 2, height - unitLength / 2, unitLength * 0.7, unitLength * 0.7, {
+    isStatic: true,
+});
 World.add(world, goal);
+
+// Ball
+
+const ball = Bodies.circle(unitLength / 2, unitLength / 2, unitLength / 4);
+World.add(world, ball);
+
+document.addEventListener("keydown", ({ keyCode }) => {
+    const { x, y } = ball.velocity;
+
+    if (keyCode === 87) {
+        Body.setVelocity(ball, { x, y: y - 5 });
+    }
+    if (keyCode === 68) {
+        Body.setVelocity(ball, { x: x + 5, y });
+    }
+    if (keyCode === 83) {
+        Body.setVelocity(ball, { x, y: y + 5 });
+    }
+    if (keyCode === 65) {
+        Body.setVelocity(ball, { x: x - 5, y });
+    }
+});
