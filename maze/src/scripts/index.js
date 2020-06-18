@@ -8,7 +8,7 @@ function starNewGame() {
     winner.classList.add("hidden");
     const { Engine, Render, Runner, World, Bodies, Body, Events } = Matter;
 
-    const cellsHorizontal = 24;
+    const cellsHorizontal = 14;
     const cellsVertical = 18;
     const width = window.innerWidth;
     const height = window.innerHeight;
