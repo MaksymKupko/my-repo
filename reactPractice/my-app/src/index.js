@@ -12,13 +12,22 @@ function Square(props) {
 
 class Board extends React.Component {
   renderSquare(i) {
-    return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)} />;
+    return <Square key={i} value={this.props.squares[i]} onClick={() => this.props.onClick(i)} />;
   }
 
   render() {
+    let divs = [];
+    for (let i = 0; i < 3; i++) {
+      const div = [];
+      for (let j = i * 3; j < (i + 1) * 3; j++) {
+        div.push(this.renderSquare(j));
+      }
+      divs.push(div) 
+    }
+  const result = divs.map((item, index) => <div key={index} className="board-row">{item}</div>)
     return (
       <div>
-        <div className="board-row">
+        {/* <div className="board-row">
           {this.renderSquare(0)}
           {this.renderSquare(1)}
           {this.renderSquare(2)}
@@ -32,7 +41,8 @@ class Board extends React.Component {
           {this.renderSquare(6)}
           {this.renderSquare(7)}
           {this.renderSquare(8)}
-        </div>
+        </div> */}
+        {result}
       </div>
     );
   }
@@ -49,7 +59,7 @@ class Game extends React.Component {
       ],
       xIsNext: true,
       stepNumber: 0,
-      squareSelected: null
+      squareSelected: null,
     };
   }
 
@@ -58,15 +68,15 @@ class Game extends React.Component {
     const current = history[history.length - 1];
     const squares = current.squares.slice();
 
-    if (calculateWinner(squares)) {
-      return;
-    }
-
     if (squares[i]) {
       this.setState({
         squareSelected: i,
-      })
-      return
+      });
+      return;
+    }
+
+    if (calculateWinner(squares)) {
+      return;
     }
 
     squares[i] = this.state.xIsNext ? "X" : "O";
@@ -94,19 +104,22 @@ class Game extends React.Component {
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
     const indexOfClickedAgain = this.state.squareSelected;
-    
+
     const moves = history.map((step, move) => {
       const clickedSquare = step.i;
       const row = Math.floor(clickedSquare / 3) + 1;
       const col = ((clickedSquare + 3) % 3) + 1;
-      
+
       const desc = move ? "Go to move " + move + "(row: " + row + " col: " + col + ")" : "Go to game start";
       return (
         <li key={move}>
-          <button 
+          <button
+            className="history-btn"
             onClick={() => this.jumpTo(move)}
-            style={(indexOfClickedAgain === clickedSquare) ? {fontWeight: 700} : {}}
-            >{desc}</button>
+            style={indexOfClickedAgain === clickedSquare ? { fontWeight: 700 } : {}}
+          >
+            {desc}
+          </button>
         </li>
       );
     });

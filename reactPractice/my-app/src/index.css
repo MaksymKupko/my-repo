@@ -1,5 +1,5 @@
 body {
-  font: 14px "Century Gothic", Futura, sans-serif;
+  font: 26px "Century Gothic", Futura, sans-serif;
   margin: 20px;
 }
 
@@ -21,15 +21,15 @@ ol, ul {
   background: #fff;
   border: 1px solid #999;
   float: left;
-  font-size: 24px;
+  font-size: 96px;
   font-weight: bold;
   line-height: 34px;
-  height: 34px;
+  height: 136px;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 34px;
+  width: 136px;
 }
 
 .square:focus {
@@ -47,5 +47,8 @@ ol, ul {
 
 .game-info {
   margin-left: 20px;
+}
+.history-btn {
+font-size: 26px;
 }
 
