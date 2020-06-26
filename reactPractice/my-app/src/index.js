@@ -49,25 +49,32 @@ class Game extends React.Component {
       ],
       xIsNext: true,
       stepNumber: 0,
+      squareSelected: null
     };
   }
 
   handleClick(i) {
-    const history = this.state.history.slice(0, this.state.stepNumber + 1)
+    const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    const rowSelected = Math.floor(i / 3) + 1
-    const colSelected = (i + 3) % 3 + 1
-    if (calculateWinner(squares) || squares[i]) {
+
+    if (calculateWinner(squares)) {
       return;
     }
+
+    if (squares[i]) {
+      this.setState({
+        squareSelected: i,
+      })
+      return
+    }
+
     squares[i] = this.state.xIsNext ? "X" : "O";
     this.setState({
       history: history.concat([
         {
           squares: squares,
-          colSelected,
-          rowSelected
+          i,
         },
       ]),
       xIsNext: !this.state.xIsNext,
@@ -86,15 +93,20 @@ class Game extends React.Component {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
-
+    const indexOfClickedAgain = this.state.squareSelected;
+    
     const moves = history.map((step, move) => {
-      const col = step.colSelected;
-      const row = step.rowSelected;
-      const desc = move ? "Go to move " + move + "(row: " + row + " col: " + col +")" 
-      : "Go to game start";
+      const clickedSquare = step.i;
+      const row = Math.floor(clickedSquare / 3) + 1;
+      const col = ((clickedSquare + 3) % 3) + 1;
+      
+      const desc = move ? "Go to move " + move + "(row: " + row + " col: " + col + ")" : "Go to game start";
       return (
         <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          <button 
+            onClick={() => this.jumpTo(move)}
+            style={(indexOfClickedAgain === clickedSquare) ? {fontWeight: 700} : {}}
+            >{desc}</button>
         </li>
       );
     });
